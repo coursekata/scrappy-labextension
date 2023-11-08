@@ -1,0 +1,20 @@
+# Changes here will be overwritten by Copier; NEVER EDIT MANUALLY
+_commit: v4.2.3
+_src_path: https://github.com/jupyterlab/extension-template
+author_email: adam@ablake.dev
+author_name: Adam Blake
+data_format: string
+file_extension: ''
+has_binder: false
+has_settings: false
+kind: server
+labextension_name: '@coursekata/scrappy'
+mimetype: ''
+mimetype_name: ''
+project_short_description: 'The JupyterLab companion extension for Scrappy: the easy
+    way to share Jupyter'
+python_name: scrappy_labextension
+repository: https://github.com/coursekata/scrappy-labextension
+test: true
+viewer_name: ''
+
