@@ -1,26 +1,29 @@
 import { URLExt } from '@jupyterlab/coreutils';
-
 import { ServerConnection } from '@jupyterlab/services';
 
 /**
- * Call the API extension
+ * Make a URL for a request to the API extension.
+ *
+ * @param endpoint API end point to call (plus any params)
+ * @param settings The server settings
+ * @returns A URL string.
+ */
+export function makeRequestUrl(endpoint: string, settings?: ServerConnection.ISettings): string {
+  settings = settings ?? ServerConnection.makeSettings();
+  return URLExt.join(settings.baseUrl, 'scrappy-labextension', endpoint);
+}
+
+/**
+ * Call the API extension.
  *
  * @param endPoint API REST end point for the extension
  * @param init Initial values for the request
  * @returns The response body interpreted as JSON
  */
-export async function requestAPI<T>(
-  endPoint = '',
-  init: RequestInit = {}
-): Promise<T> {
-  // Make request to Jupyter API
+export async function requestAPI<T>(endPoint = '', init: RequestInit = {}): Promise<T> {
   const settings = ServerConnection.makeSettings();
-  const requestUrl = URLExt.join(
-    settings.baseUrl,
-    'scrappy-labextension', // API Namespace
-    endPoint
-  );
-
+  const requestUrl = makeRequestUrl(endPoint, settings);
+  console.log({ requestUrl }); // TODO: remove
   let response: Response;
   try {
     response = await ServerConnection.makeRequest(requestUrl, init, settings);
@@ -29,7 +32,6 @@ export async function requestAPI<T>(
   }
 
   let data: any = await response.text();
-
   if (data.length > 0) {
     try {
       data = JSON.parse(data);
