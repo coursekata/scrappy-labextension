@@ -12,6 +12,8 @@ scrappy_labextension/labextension
 # Version file is handled by hatchling
 scrappy_labextension/_version.py
 
+*.ipynb
+
 # Integration tests
 ui-tests/test-results/
 ui-tests/playwright-report/

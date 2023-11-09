@@ -1,38 +1,21 @@
+import { JupyterFrontEnd } from '@jupyterlab/application';
 import { Dialog, ICommandPalette, ToolbarButton, showErrorMessage } from '@jupyterlab/apputils';
+import { PageConfig, URLExt } from '@jupyterlab/coreutils';
 import { DocumentRegistry } from '@jupyterlab/docregistry';
 import { INotebookModel, INotebookTracker, NotebookPanel } from '@jupyterlab/notebook';
 import { CommandRegistry } from '@lumino/commands';
 import { IDisposable } from '@lumino/disposable';
 import { Widget } from '@lumino/widgets';
 
-import { makeRequestUrl } from './handler';
-
-export class ShareButton
-  implements DocumentRegistry.IWidgetExtension<NotebookPanel, INotebookModel>
-{
-  constructor(
-    private command_name: string,
-    private commands: CommandRegistry
-  ) {}
-
-  createNew(panel: NotebookPanel, context: DocumentRegistry.IContext<INotebookModel>): IDisposable {
-    const shareButton = new ToolbarButton({
-      label: 'Share notebook',
-      onClick: () => this.commands.execute(this.command_name)
-    });
-
-    panel.toolbar.insertAfter('cellType', 'share-notebook', shareButton);
-    return shareButton;
-  }
-}
-
-export function makeShareCommand(
+export function registerShareCommand(
   name: string,
   apiUrl: string,
-  commands: CommandRegistry,
+  paramName: string,
+  app: JupyterFrontEnd,
   palette: ICommandPalette,
   tracker: INotebookTracker
 ) {
+  const { commands } = app;
   palette.addItem({ command: name, category: 'Notebook Operations' });
 
   // TODO: override copy shareable link:
@@ -55,10 +38,13 @@ export function makeShareCommand(
         });
 
         const responseData = await response.json();
-        if (!response.ok || !responseData.success) throw new Error('API error');
+        if (!response.ok || !responseData.success || !responseData.data?.id) {
+          throw new Error('There was an error sharing your notebook.');
+        }
 
-        // TODO: the link should point to the API running on JupyterLab server, not the API
-        const dialog = makeShareDialog(makeRequestUrl(`notebooks/${responseData.data.id}`));
+        const appUrl = URLExt.join(PageConfig.getBaseUrl(), 'lab');
+        const params = URLExt.objectToQueryString({ [paramName]: responseData.data.id });
+        const dialog = makeShareDialog(`${appUrl}/${params}`);
         await dialog.launch();
         dialog.dispose();
       } catch (error) {
@@ -68,6 +54,25 @@ export function makeShareCommand(
       }
     }
   });
+}
+
+export class ShareButton
+  implements DocumentRegistry.IWidgetExtension<NotebookPanel, INotebookModel>
+{
+  constructor(
+    private command_name: string,
+    private commands: CommandRegistry
+  ) {}
+
+  createNew(panel: NotebookPanel, context: DocumentRegistry.IContext<INotebookModel>): IDisposable {
+    const shareButton = new ToolbarButton({
+      label: 'Share notebook',
+      onClick: () => this.commands.execute(this.command_name)
+    });
+
+    panel.toolbar.insertAfter('cellType', 'share-notebook', shareButton);
+    return shareButton;
+  }
 }
 
 function makeShareDialog(url: string): Dialog<Widget> {

@@ -29,15 +29,7 @@ pip uninstall scrappy_labextension
 
 ## Troubleshoot
 
-If you are seeing the frontend extension, but it is not working, check
-that the server extension is enabled:
-
-```bash
-jupyter server extension list
-```
-
-If the server extension is installed and enabled, but you are not seeing
-the frontend extension, check the frontend extension is installed:
+If you are seeing the frontend extension, but it is not working, check that it is installed:
 
 ```bash
 jupyter labextension list
@@ -60,8 +52,6 @@ The `jlpm` command is JupyterLab's pinned version of
 pip install -e ".[test,dev]"
 # Link your development version of the extension with JupyterLab
 jupyter labextension develop . --overwrite
-# Server extension must be manually installed in develop mode
-jupyter server extension enable scrappy_labextension
 # Rebuild extension Typescript source after making changes
 jlpm build
 ```
@@ -86,8 +76,6 @@ jupyter lab build --minimize=False
 ### Development uninstall
 
 ```bash
-# Server extension must be manually disabled in develop mode
-jupyter server extension disable scrappy_labextension
 pip uninstall scrappy_labextension
 ```
 
@@ -97,23 +85,6 @@ folder is located. Then you can remove the symlink named `@coursekata/scrappy` w
 
 ### Testing the extension
 
-#### Server tests
-
-This extension is using [Pytest](https://docs.pytest.org/) for Python code testing.
-
-Install test dependencies (needed only once):
-
-```sh
-pip install -e ".[test]"
-# Each time you install the Python package, you need to restore the front-end extension link
-jupyter labextension develop . --overwrite
-```
-
-To execute them, run:
-
-```sh
-pytest -vv -r ap --cov scrappy_labextension
-```
 
 #### Frontend tests
 
